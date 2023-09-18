@@ -9,5 +9,24 @@ package com.bobobode.cs;
  * @author Taras Boychuk
  */
 public class Node<T> {
-    // todo:
+
+    T current;
+
+    Node<T> next;
+
+    public Node(T current) {
+        this.current = current;
+    }
+
+    public void setNext(Node<T> next) {
+        this.next = next;
+    }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "current=" + current +
+                ", next=" + next +
+                '}';
+    }
 }

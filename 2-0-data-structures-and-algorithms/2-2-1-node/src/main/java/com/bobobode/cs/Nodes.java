@@ -1,11 +1,9 @@
 package com.bobobode.cs;
 
-import com.bobocode.util.ExerciseNotCompletedException;
-
 /**
  * A class that consists of static methods only and provides util methods for {@link Node}.
  * <p><p>
- * <strong>TODO: to get the most out of your learning, <a href="https://www.bobocode.com/learn">visit our website</a></strong>
+ * <strong>
  * <p>
  *
  * @author Taras Boychuk
@@ -22,7 +20,7 @@ public class Nodes {
      * @return a new instance of {@link Node}
      */
     public static <T> Node<T> create(T element) {
-        throw new ExerciseNotCompletedException(); // todo:
+        return new Node<>(element);
     }
 
     /**
@@ -33,7 +31,7 @@ public class Nodes {
      * @param <T>    a genetic type
      */
     public static <T> void link(Node<T> first, Node<T> second) {
-        throw new ExerciseNotCompletedException(); // todo:
+        first.next = second;
     }
 
     /**
@@ -46,7 +44,9 @@ public class Nodes {
      * @return a reference to a first node created based on firstElement
      */
     public static <T> Node<T> pairOf(T firstElement, T secondElement) {
-        throw new ExerciseNotCompletedException(); // todo:
+        var fNode = new Node<>(firstElement);
+        fNode.setNext(new Node<>(secondElement));
+        return fNode;
     }
 
     /**
@@ -60,19 +60,29 @@ public class Nodes {
      * @return a reference to the first node
      */
     public static <T> Node<T> closedPairOf(T firstElement, T secondElement) {
-        throw new ExerciseNotCompletedException(); // todo:
+        var fNode = new Node<>(firstElement);
+        var sNode = new Node<>(secondElement);
+        fNode.setNext(sNode);
+        sNode.setNext(fNode);
+        return fNode;
     }
 
     /**
      * Creates a linked chain of {@link Node} objects based on provided elements. Creates a connection between those
      * nodes so each node will hold a reference to the next one in the chain. HINT: it's basically a linked list.
      *
-     * @param elements a array of elements of type T
+     * @param elements an array of elements of type T
      * @param <T>      generic type T
      * @return a reference to the first element of the chain
      */
     public static <T> Node<T> chainOf(T... elements) {
-        throw new ExerciseNotCompletedException(); // todo:
+        var firstNode = new Node<>(elements[0]);
+        var current = firstNode;
+        for (int i = 1; i < elements.length; i++) {
+            current.next = new Node<>(elements[i]);
+            current = current.next;
+        }
+        return firstNode;
     }
 
     /**
@@ -80,11 +90,18 @@ public class Nodes {
      * nodes so each node will hold a reference to the next one in the chain, and the last one will hold a reference to
      * the first one.
      *
-     * @param elements a array of elements of type T
+     * @param elements an array of elements of type T
      * @param <T>      generic type T
      * @return a reference to the first element of the chain
      */
     public static <T> Node<T> circleOf(T... elements) {
-        throw new ExerciseNotCompletedException(); // todo:
+        var firstNode = new Node<>(elements[0]);
+        var current = firstNode;
+        for (int i = 1; i < elements.length; i++) {
+            current.next = new Node<>(elements[i]);
+            current = current.next;
+        }
+        current.next = firstNode;
+        return firstNode;
     }
 }
