@@ -92,34 +92,18 @@ public class RecursiveBinarySearchTree<T extends Comparable<T>> implements Binar
     @Override
     public boolean contains(T element) {
         Objects.requireNonNull(element);
-        if (root == null) {
-            return false;
-        } else {
-            return containsInSubTree(root, element);
-        }
+        return findChildNodeByElement(root, element) != null;
     }
 
-    private boolean containsInSubTree(Node<T> subTreeRoot, T element) {
-        if (subTreeRoot.element.compareTo(element) > 0) {
-            return containsInLeftSubTree(subTreeRoot, element);
-        } else if (subTreeRoot.element.compareTo(element) < 0) {
-            return containsInRightSubTree(subTreeRoot, element);
-        } else return subTreeRoot.element.compareTo(element) == 0;
-    }
-
-    private boolean containsInLeftSubTree(Node<T> node, T element) {
-        if (node.left != null) {
-            return containsInSubTree(node.left, element);
+    private Node<T> findChildNodeByElement(Node<T> node, T element) {
+        if (node == null) {
+            return null;
+        } else if (node.element.compareTo(element) > 0) {
+            return findChildNodeByElement(node.left, element);
+        } else if (node.element.compareTo(element) < 0) {
+            return findChildNodeByElement(node.right, element);
         } else {
-            return false;
-        }
-    }
-
-    private boolean containsInRightSubTree(Node<T> node, T element) {
-        if (node.right != null) {
-            return containsInSubTree(node.right, element);
-        } else {
-            return false;
+            return node;
         }
     }
 
@@ -130,44 +114,15 @@ public class RecursiveBinarySearchTree<T extends Comparable<T>> implements Binar
 
     @Override
     public int depth() {
-        int innerRightDepth = 0;
-        int innerLeftDepth = 0;
-        innerRightDepth = depthInRightSubTree(root, innerRightDepth);
-        innerLeftDepth = depthInLeftSubTree(root, innerLeftDepth);
-
-        return Math.max(innerRightDepth, innerLeftDepth);
+        return root != null ? depth(root) - 1 : 0;
     }
 
-    private int depthInRightSubTree(Node<T> subTreeRoot, int innerRightDepth) {
-        if (subTreeRoot != null) {
-            if (subTreeRoot.right != null) {
-                subTreeRoot = subTreeRoot.right;
-                innerRightDepth++;
-                return depthInRightSubTree(subTreeRoot, innerRightDepth);
-            } else if (subTreeRoot.left != null) {
-                subTreeRoot = subTreeRoot.left;
-                innerRightDepth++;
-                return depthInRightSubTree(subTreeRoot, innerRightDepth);
-            }
-            return innerRightDepth;
+    private int depth(Node<T> node) {
+        if (node == null) {
+            return 0;
+        } else {
+            return 1 + Math.max(depth(node.left), depth(node.right));
         }
-        return 0;
-    }
-
-    private int depthInLeftSubTree(Node<T> subTreeRoot, int innerLeftDepth) {
-        if (subTreeRoot != null) {
-            if (subTreeRoot.left != null) {
-                subTreeRoot = subTreeRoot.left;
-                innerLeftDepth++;
-                return depthInRightSubTree(subTreeRoot, innerLeftDepth);
-            } else if (subTreeRoot.right != null) {
-                subTreeRoot = subTreeRoot.right;
-                innerLeftDepth++;
-                return depthInRightSubTree(subTreeRoot, innerLeftDepth);
-            }
-            return innerLeftDepth;
-        }
-        return 0;
     }
 
     @Override
