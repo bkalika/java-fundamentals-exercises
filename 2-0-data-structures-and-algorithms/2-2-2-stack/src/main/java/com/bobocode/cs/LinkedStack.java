@@ -1,13 +1,15 @@
 package com.bobocode.cs;
 
 import com.bobocode.cs.exception.EmptyStackException;
-import com.bobocode.util.ExerciseNotCompletedException;
+
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * {@link LinkedStack} is a stack implementation that is based on singly linked generic nodes.
  * A node is implemented as inner static class {@link Node<T>}.
  * <p><p>
- * <strong>TODO: to get the most out of your learning, <a href="https://www.bobocode.com/learn">visit our website</a></strong>
+ * <strong>To get the most out of your learning, <a href="https://www.bobocode.com/learn">visit our website</a></strong>
  * <p>
  *
  * @param <T> generic type parameter
@@ -15,6 +17,25 @@ import com.bobocode.util.ExerciseNotCompletedException;
  * @author Serhii Hryhus
  */
 public class LinkedStack<T> implements Stack<T> {
+
+    private Node<T> head;
+
+    private int size;
+
+    private static class Node<T> {
+
+        T element;
+
+        Node<T> next;
+
+        private Node(T element) {
+            this.element = element;
+        }
+
+        public static <T> Node<T> valueOf(T element) {
+            return new Node<>(element);
+        }
+    }
 
     /**
      * This method creates a stack of provided elements
@@ -24,7 +45,9 @@ public class LinkedStack<T> implements Stack<T> {
      * @return a new stack of elements that were passed as method parameters
      */
     public static <T> LinkedStack<T> of(T... elements) {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        LinkedStack<T> linkedStack = new LinkedStack<>();
+        Stream.of(elements).forEach(linkedStack::push);
+        return linkedStack;
     }
 
     /**
@@ -35,7 +58,13 @@ public class LinkedStack<T> implements Stack<T> {
      */
     @Override
     public void push(T element) {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        Objects.requireNonNull(element);
+        Node<T> newNode = Node.valueOf(element);
+        if (head != null) {
+            newNode.next = head;
+        }
+        head = newNode;
+        size++;
     }
 
     /**
@@ -47,7 +76,13 @@ public class LinkedStack<T> implements Stack<T> {
      */
     @Override
     public T pop() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        if (head != null) {
+            Node<T> currentHead = head.next;
+            T returnElement = head.element;
+            head = currentHead;
+            size--;
+            return returnElement;
+        } else throw new EmptyStackException();
     }
 
     /**
@@ -57,7 +92,7 @@ public class LinkedStack<T> implements Stack<T> {
      */
     @Override
     public int size() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        return size;
     }
 
     /**
@@ -67,7 +102,6 @@ public class LinkedStack<T> implements Stack<T> {
      */
     @Override
     public boolean isEmpty() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method;
+        return head == null;
     }
-
 }

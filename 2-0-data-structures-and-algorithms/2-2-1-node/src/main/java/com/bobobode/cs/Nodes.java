@@ -3,7 +3,7 @@ package com.bobobode.cs;
 /**
  * A class that consists of static methods only and provides util methods for {@link Node}.
  * <p><p>
- * <strong>
+ * <strong>To get the most out of your learning, <a href="https://www.bobocode.com/learn">visit our website</a></strong>
  * <p>
  *
  * @author Taras Boychuk
@@ -76,8 +76,8 @@ public class Nodes {
      * @return a reference to the first element of the chain
      */
     public static <T> Node<T> chainOf(T... elements) {
-        var firstNode = new Node<>(elements[0]);
-        var current = firstNode;
+        Node<T> firstNode = new Node<>(elements[0]);
+        Node<T> current = firstNode;
         for (int i = 1; i < elements.length; i++) {
             current.next = new Node<>(elements[i]);
             current = current.next;
