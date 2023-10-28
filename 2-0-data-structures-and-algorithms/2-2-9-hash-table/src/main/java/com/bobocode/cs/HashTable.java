@@ -1,6 +1,6 @@
 package com.bobocode.cs;
 
-import com.bobocode.util.ExerciseNotCompletedException;
+import static java.util.Objects.requireNonNull;
 
 /**
  * {@link HashTable} is a simple Hashtable-based implementation of {@link Map} interface with some additional methods.
@@ -19,7 +19,7 @@ import com.bobocode.util.ExerciseNotCompletedException;
  * <p>
  * The initial array size (initial capacity) is 8.
  * <p><p>
- * <strong>TODO: to get the most out of your learning, <a href="https://www.bobocode.com/learn">visit our website</a></strong>
+ * <strong>To get the most out of your learning, <a href="https://www.bobocode.com/learn">visit our website</a></strong>
  * <p>
  *
  * @param <K> key type
@@ -27,6 +27,32 @@ import com.bobocode.util.ExerciseNotCompletedException;
  * @author Taras Boychuk
  */
 public class HashTable<K, V> implements Map<K, V> {
+    private static final int DEFAULT_CAPACITY = 8;
+    private static final float RESIZE_THRESHOLD = 1.0f;
+    private Node<K, V>[] table;
+    private int size;
+
+    public static class Node<K, V> {
+        K key;
+        V value;
+        Node<K, V> next;
+
+        public Node(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    public HashTable() {
+        this(DEFAULT_CAPACITY);
+    }
+
+    public HashTable(int initialCapacity) {
+        if (initialCapacity <= 0) {
+            throw new IllegalArgumentException("Capacity must be positive.");
+        }
+        this.table = new Node[initialCapacity];
+    }
 
     /**
      * This method is a critical part of the hast table. The main idea is that having a key, you can calculate its index
@@ -43,7 +69,8 @@ public class HashTable<K, V> implements Map<K, V> {
      * @return array index of the given key
      */
     public static int calculateIndex(Object key, int tableCapacity) {
-        throw new ExerciseNotCompletedException(); // todo:
+        var hash = key.hashCode() ^ (key.hashCode() >> 16);
+        return hash & (tableCapacity - 1);
     }
 
     /**
@@ -59,7 +86,40 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public V put(K key, V value) {
-        throw new ExerciseNotCompletedException(); // todo:
+        resizeIfNeeded();
+        return putOnTable(table, key, value);
+    }
+
+    private void resizeIfNeeded() {
+        if (size / (float) table.length > RESIZE_THRESHOLD) {
+            resizeTable(2 * table.length);
+        }
+    }
+
+    private V putOnTable(Node<K, V>[] table, K key, V value) {
+        var newNode = new Node<>(requireNonNull(key), requireNonNull(value));
+        var index = calculateIndex(key, table.length);
+        if (table[index] == null) { // add a new head key
+            table[index] = newNode;
+        } else {
+            var current = table[index];
+            while (current.next != null) { // iterate a linked list to a new key
+                if (current.key.equals(key)) {
+                    var prevValue = current.value;
+                    current.value = value;
+                    return prevValue;
+                }
+                current = current.next;
+            }
+            if (current.key.equals(key)) {
+                var prevValue = current.value;
+                current.value = value;
+                return prevValue;
+            }
+            current.next = newNode; // attach new key to the end of the list
+        }
+        size++;
+        return null;
     }
 
     /**
@@ -71,7 +131,15 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public V get(K key) {
-        throw new ExerciseNotCompletedException(); // todo:
+        int indexToCheck = calculateIndex(requireNonNull(key), table.length);
+        var current = table[indexToCheck];
+        while (current != null) {
+            if (current.key.equals(key)) {
+                return current.value;
+            }
+            current = current.next;
+        }
+        return null;
     }
 
     /**
@@ -82,7 +150,15 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public boolean containsKey(K key) {
-        throw new ExerciseNotCompletedException(); // todo:
+        int index = calculateIndex(requireNonNull(key), table.length);
+        var current = table[index];
+        while (current != null) {
+            if (current.key.equals(key)) {
+                return true;
+            }
+            current = current.next;
+        }
+        return false;
     }
 
     /**
@@ -93,7 +169,19 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public boolean containsValue(V value) {
-        throw new ExerciseNotCompletedException(); // todo:
+        Node<K, V> current;
+        for (int i = 0; i < table.length; i++) {
+            if (table[i] != null) {
+                current = table[i];
+                while (current != null) {
+                    if (current.value.equals(value)) {
+                        return true;
+                    }
+                    current = current.next;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -103,7 +191,7 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public int size() {
-        throw new ExerciseNotCompletedException(); // todo:
+        return size;
     }
 
     /**
@@ -113,7 +201,7 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public boolean isEmpty() {
-        throw new ExerciseNotCompletedException(); // todo:
+        return size == 0;
     }
 
     /**
@@ -124,7 +212,28 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public V remove(K key) {
-        throw new ExerciseNotCompletedException(); // todo:
+        int indexToCheck = calculateIndex(requireNonNull(key), table.length);
+        var current = table[indexToCheck];
+        if (current != null && current.key.equals(key) && current.next == null) {
+            var returnValue = current.value;
+            table[indexToCheck] = null;
+            size--;
+            return returnValue;
+        } else {
+            while (current != null && current.next != null) {
+                if (current.next.key.equals(key)) {
+                    var returnValue = current.next.value;
+                    current.next = current.next.next;
+//                    Node<K, V> previousNode = current;
+//                    previousNode.next = current;
+                    size--;
+                    return returnValue;
+                }
+                current = current.next;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -150,7 +259,26 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public String toString() {
-        throw new ExerciseNotCompletedException(); // todo:
+        Node<K, V> current;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < table.length; i++) {
+            stringBuilder.append(i)
+                    .append(": ");
+            if (table[i] != null) {
+                current = table[i];
+                while (current != null) {
+                    stringBuilder.append(current.key)
+                            .append("=")
+                            .append(current.value);
+                    if (current.next != null) {
+                        stringBuilder.append(" -> ");
+                    }
+                    current = current.next;
+                }
+            }
+            stringBuilder.append("\n"); // FIXME: stringBuilder.append(System.getProperty("line.separator"));
+        }
+        return stringBuilder.toString();
     }
 
     /**
@@ -167,6 +295,17 @@ public class HashTable<K, V> implements Map<K, V> {
      * @param newCapacity a size of the new underlying array
      */
     public void resizeTable(int newCapacity) {
-        throw new ExerciseNotCompletedException(); // todo:
+        if (newCapacity <= 0) {
+            throw new IllegalArgumentException("Capacity must be positive.");
+        }
+        Node<K, V>[] newTable = new Node[newCapacity];
+        for (var head : table) {
+            var current = head;
+            while (current != null) {
+                putOnTable(newTable, current.key, current.value);
+                current = current.next;
+            }
+        }
+        table = newTable;
     }
 }
